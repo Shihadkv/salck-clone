@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { SignInFlow } from "../types"
 import { useState } from "react"
+import { useAuthActions } from "@convex-dev/auth/react";
+// import { signIn } from "../../../../../convex/auth" 
 
 interface SignInCardProps {
     setState : (state: SignInFlow) => void
@@ -14,8 +16,28 @@ interface SignInCardProps {
 
 export const SignInCard = ({setState} : SignInCardProps) => {
 
+    const {signIn} = useAuthActions()
+
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
+    const [pending, setPending] =useState(false)
+
+    const onPasswordSignIn = (e: React.FormEvent<HTMLFormElement>) =>{
+        e.preventDefault()
+        setPending(true)
+        signIn("password", {email,password,flow: "signIn"})
+        .catch(()=>{
+
+        })
+        .finally(()=>{
+            setPending(false)
+        })
+    }
+
+    const handleProviderSignIn = (value: "github" | "google") =>{
+        signIn(value)
+    }
 
     return (
         <Card className="w-full h-full p-8">
@@ -51,7 +73,7 @@ export const SignInCard = ({setState} : SignInCardProps) => {
                 <div className="flex flex-col gap-y-2">
                     <Button
                         disabled={false}
-                        onClick={() => { }}
+                        onClick={() => { handleProviderSignIn("google")}}
                         variant="outline"
                         size="lg"
                         className="w-full relative"
@@ -61,7 +83,7 @@ export const SignInCard = ({setState} : SignInCardProps) => {
                     </Button>
                     <Button
                         disabled={false}
-                        onClick={() => { }}
+                        onClick={() => { handleProviderSignIn("github")}}
                         variant="outline"
                         size="lg"
                         className="w-full relative"
